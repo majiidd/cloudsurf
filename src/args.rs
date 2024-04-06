@@ -34,7 +34,7 @@ pub struct Args {
     #[clap(
         short = 'f',
         long,
-        help = "Path to the file for  writing IP addresses. This argument is optional."
+        help = "Path to the file for writing IP addresses. This argument is optional."
     )]
     pub file_path: Option<String>,
 
@@ -45,7 +45,7 @@ pub struct Args {
         long,
         env = "RUST_LOG",
         default_value = "info",
-        help = "Sets the logging level for the application's output. Defaults to 'info' if not specified."
+        help = "Sets the logging level for the application's output."
     )]
     pub log_level: String,
 }
