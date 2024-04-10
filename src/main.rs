@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
 
     let a = fetch_and_filter_ipv4_list(&skip_prefixes_vec).await?;
 
-    let last = check_tls_availability(&a, &args.domain, 443, 1).await?;
+    let last = check_tls_availability(&a, &args.domain, 443, args.count, args.max_valid_ips).await?;
 
     println!("{:?}", last);
 

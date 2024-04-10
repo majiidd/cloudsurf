@@ -38,6 +38,7 @@ pub async fn check_tls_availability(
     ips: &Vec<Ipv4Addr>,
     domain: &str,
     port: u16,
+    attempts: usize,
     n: usize,
 ) -> Result<Vec<(Ipv4Addr, u128)>> {
     if ips.is_empty() {
@@ -46,7 +47,7 @@ pub async fn check_tls_availability(
 
     // Randomly select a subset of IP addresses to test.
     let target: Vec<_> = ips
-        .choose_multiple(&mut rand::thread_rng(), 150)
+        .choose_multiple(&mut rand::thread_rng(), attempts)
         .cloned()
         .collect();
 
@@ -157,9 +158,10 @@ mod tests {
         ];
         let domain = "cloudflare.com";
         let port = 443;
+        let count = 10;
         let n = 1;
 
-        let result = check_tls_availability(&ips, domain, port, n).await;
+        let result = check_tls_availability(&ips, domain, port, count, n).await;
         assert!(result.is_ok(), "Expected Ok result, but got an Err");
 
         let valid_ips = result.unwrap();
@@ -171,9 +173,10 @@ mod tests {
         let ips = Vec::new(); // Empty list of IPs
         let domain = "example.com";
         let port = 443;
+        let count = 10;
         let n = 1;
 
-        let result = check_tls_availability(&ips, domain, port, n).await;
+        let result = check_tls_availability(&ips, domain, count, port, n).await;
         assert!(result.is_ok(), "Expected Ok result with empty input");
         let valid_ips = result.unwrap();
         assert!(
@@ -187,9 +190,10 @@ mod tests {
         let ips = vec![Ipv4Addr::new(1, 8, 8, 1)]; // Example IP
         let domain = "unreachable.unreachableexample.com"; // Unreachable domain
         let port = 443;
+        let count = 10;
         let n = 1;
 
-        let result = check_tls_availability(&ips, domain, port, n).await;
+        let result = check_tls_availability(&ips, domain, count, port, n).await;
         assert!(
             result.is_ok(),
             "Expected Ok result even with unreachable domain"

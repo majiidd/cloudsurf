@@ -1,6 +1,7 @@
 use clap::Parser;
 
-const DEFAULT_COUNT: u8 = 5;
+const DEFAULT_COUNT: usize = 150;
+const DEFAULT_MAX_VALID_IPS: usize = 5;
 
 /// Defines command-line arguments for the application.
 ///
@@ -16,7 +17,7 @@ pub struct Args {
     ///
     /// Specifies how many IP addresses the application should attempt to connect to.
     #[clap(short, long, default_value_t = DEFAULT_COUNT)]
-    pub count: u8,
+    pub count: usize,
 
     /// Comma-separated list of IP address prefixes to skip.
     ///
@@ -76,7 +77,7 @@ pub struct Args {
     /// The maximum number of valid IPs to return.
     #[clap(
         long,
-        default_value_t = 10,
+        default_value_t = DEFAULT_MAX_VALID_IPS,
         help = "Maximum number of valid IPs to return."
     )]
     pub max_valid_ips: usize,
@@ -90,13 +91,13 @@ mod tests {
     #[test]
     fn test_default_values() {
         let args = Args::parse_from(["testapp", "--domain", "example.com"]);
-        assert_eq!(args.count, 5);
+        assert_eq!(args.count, DEFAULT_COUNT);
         assert_eq!(args.log_level, "info");
         assert!(args.skip_prefixes.is_none());
         assert!(args.file_path.is_none());
         assert_eq!(args.domain, "example.com");
         assert_eq!(args.port, 443);
-        assert_eq!(args.max_valid_ips, 10)
+        assert_eq!(args.max_valid_ips, DEFAULT_MAX_VALID_IPS)
     }
 
     #[test]
