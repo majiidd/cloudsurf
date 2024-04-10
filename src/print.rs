@@ -2,7 +2,7 @@ use std::net::Ipv4Addr;
 
 use prettytable::{row, Cell, Row, Table};
 
-pub fn ips(ips: Vec<(Ipv4Addr, u128)>) {
+pub fn ips(ips: &Vec<(Ipv4Addr, u128)>) {
     let mut table = Table::new();
     table.add_row(row!["", "IP Address", "Latency (ms)"]);
 

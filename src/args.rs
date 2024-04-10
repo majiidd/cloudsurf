@@ -1,6 +1,6 @@
 use clap::Parser;
 
-const DEFAULT_COUNT: usize = 150;
+const DEFAULT_COUNT: usize = 100;
 const DEFAULT_MAX_VALID_IPS: usize = 5;
 
 /// Defines command-line arguments for the application.
