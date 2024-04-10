@@ -5,6 +5,7 @@ mod network;
 use crate::args::Args;
 use crate::logger::init_logging;
 use crate::network::fetch_and_filter_ipv4_list;
+use crate::network::check_tls_availability;
 use anyhow::Result;
 use clap::Parser;
 
@@ -24,7 +25,9 @@ async fn main() -> Result<()> {
 
     let a = fetch_and_filter_ipv4_list(&skip_prefixes_vec).await?;
 
-    println!("{:?}", a);
+    let last = check_tls_availability(&a, &args.domain, 443, 1).await?;
+
+    println!("{:?}", last);
 
     Ok(())
 }

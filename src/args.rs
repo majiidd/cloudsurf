@@ -48,41 +48,97 @@ pub struct Args {
         help = "Sets the logging level for the application's output."
     )]
     pub log_level: String,
+
+    /// The domain name used for TLS connection verification.
+    ///
+    /// This domain name is utilized when establishing TLS connections to each IP address
+    /// to verify the identity of the remote server. It should match the domain expected
+    /// in the server's SSL certificate. For example, if you're checking IPs that should
+    /// have certificates for `example.com`, you would use `example.com` as the domain.
+    #[clap(
+        long,
+        help = "The domain name to use for verifying TLS connections against the provided IP addresses."
+    )]
+    pub domain: String,
+
+    /// The port number to use for establishing TCP connections.
+    ///
+    /// Specifies the port number on which to attempt TCP connections before initiating
+    /// the TLS handshake. This is typically set to 443 for HTTPS connections but can
+    /// be set to any port number required by your specific use case.
+    #[clap(
+        long,
+        default_value_t = 443,
+        help = "The port number to use for TCP connections. Default is 443, the standard port for HTTPS."
+    )]
+    pub port: u16,
+
+    /// The maximum number of valid IPs to return.
+    #[clap(
+        long,
+        default_value_t = 10,
+        help = "Maximum number of valid IPs to return."
+    )]
+    pub max_valid_ips: usize,
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*; 
+    use super::*;
     use clap::error::ErrorKind;
 
     #[test]
     fn test_default_values() {
-        let args = Args::parse_from(["testapp"]);
+        let args = Args::parse_from(["testapp", "--domain", "example.com"]);
         assert_eq!(args.count, 5);
         assert_eq!(args.log_level, "info");
         assert!(args.skip_prefixes.is_none());
         assert!(args.file_path.is_none());
+        assert_eq!(args.domain, "example.com");
+        assert_eq!(args.port, 443);
+        assert_eq!(args.max_valid_ips, 10)
     }
 
     #[test]
     fn test_valid_input() {
         let args = Args::parse_from([
             "testapp",
-            "--count", "10",
-            "--skip-prefixes", "192.168,10.0",
-            "-f", "/path/to/file",
-            "--log-level", "debug"
+            "--count",
+            "10",
+            "--skip-prefixes",
+            "192.168,10.0",
+            "-f",
+            "/path/to/file",
+            "--log-level",
+            "debug",
+            "--domain",
+            "example.com",
+            "--port",
+            "443",
+            "--max-valid-ips",
+            "20",
         ]);
 
         assert_eq!(args.count, 10);
         assert_eq!(args.skip_prefixes, Some("192.168,10.0".to_string()));
         assert_eq!(args.file_path, Some("/path/to/file".to_string()));
         assert_eq!(args.log_level, "debug");
+        assert_eq!(args.domain, "example.com");
+        assert_eq!(args.port, 443);
+        assert_eq!(args.max_valid_ips, 20)
     }
 
     #[test]
     fn test_invalid_count() {
         let result = Args::try_parse_from(["testapp", "--count", "not_a_number"]);
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.kind(), ErrorKind::ValueValidation);
+    }
+
+    #[test]
+    fn test_invalid_port() {
+        let result = Args::try_parse_from(["testapp", "--port", "not_a_number"]);
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert_eq!(err.kind(), ErrorKind::ValueValidation);
