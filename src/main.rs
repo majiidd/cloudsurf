@@ -1,6 +1,7 @@
 mod args;
 mod logger;
 mod network;
+mod print;
 
 use crate::args::Args;
 use crate::logger::init_logging;
@@ -27,7 +28,7 @@ async fn main() -> Result<()> {
 
     let last = check_tls_availability(&a, &args.domain, 443, args.count, args.max_valid_ips).await?;
 
-    println!("{:?}", last);
+    print::ips(last);
 
     Ok(())
 }
