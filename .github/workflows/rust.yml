@@ -127,12 +127,16 @@ jobs:
     - name: Generate coverage report
       run: |
         grcov . -s . -t lcov --llvm --branch --ignore-not-existing -o ./coverage/
-        zip -0 ccov.zip $(find . \( -name "*.profraw" \) -print)
-      shell: /usr/bin/bash -e {0}
-      env:
-        CARGO_TERM_COLOR: always
-        RUSTFLAGS: -C instrument-coverage
-        LLVM_PROFILE_FILE: coverage-%p-%m.profraw
+      shell: bash
+
+    - name: Zip coverage files (Cross-platform)
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          Compress-Archive -Path $(Get-ChildItem -Recurse -Include "*.profraw") -DestinationPath ccov.zip
+        else
+          zip -0 ccov.zip ./coverage/*
+        fi
+      shell: bash
 
   build-and-release:
     needs: test
