@@ -111,8 +111,15 @@ jobs:
     - name: Build
       run: cargo build
       
-    - name: Run tests
+    - name: Run tests with coverage
       run: cargo test
+      env:
+        CARGO_TERM_COLOR: always
+        RUSTFLAGS: -Cinstrument-coverage
+        LLVM_PROFILE_FILE: coverage-%p-%m.profraw
+
+    - name: List coverage files
+      run: find . -name "*.profraw"
 
     - name: Create coverage directory
       run: mkdir -p ./coverage/
