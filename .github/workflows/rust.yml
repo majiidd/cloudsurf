@@ -84,7 +84,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
     needs: check
     steps:
     - uses: actions/checkout@v3
@@ -117,6 +117,43 @@ jobs:
 
     - name: List coverage files
       run: find . -name "*.profraw"
+
+  test-windows:
+    name: Run Tests [windows]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: x86_64-pc-windows-msvc
+        default: true
+
+    - name: Install OpenSSL
+      run: choco install openssl.light
+      env:
+        OPENSSL_DIR: C:\Program Files\OpenSSL-Win64
+        OPENSSL_CONF: C:\Program Files\OpenSSL-Win64\bin\openssl.cfg
+
+    - name: Set OPENSSL_DIR environment variable
+      run: echo "OPENSSL_DIR=C:\Program Files\OpenSSL-Win64" >> $GITHUB_ENV
+
+    - name: Cache Cargo registry and build output
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build
+      run: cargo build
+
+    - name: Run tests
+      run: cargo test
 
   build-and-release:
     needs: test
