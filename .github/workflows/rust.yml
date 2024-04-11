@@ -121,6 +121,7 @@ jobs:
   test-windows:
     name: Run Tests [windows]
     runs-on: windows-latest
+    needs: check
     steps:
     - uses: actions/checkout@v2
 
