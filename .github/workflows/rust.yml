@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  CARGO_TERM_COLOR: always
-  RUSTFLAGS: "-C instrument-coverage"
-  LLVM_PROFILE_FILE: "coverage-%p-%m.profraw"
-
 jobs:
   format:
     name: Check Formatting
@@ -118,11 +113,19 @@ jobs:
       
     - name: Run tests
       run: cargo test
+
+    - name: Create coverage directory
+      run: mkdir -p ./coverage/
       
     - name: Generate coverage report
       run: |
         grcov . -s . -t lcov --llvm --branch --ignore-not-existing -o ./coverage/
-        zip -0 ccov.zip `find . \( -name "cloudsurf*.gc*" \) -print`
+        zip -0 ccov.zip $(find . \( -name "*.profraw" \) -print)
+      shell: /usr/bin/bash -e {0}
+      env:
+        CARGO_TERM_COLOR: always
+        RUSTFLAGS: -C instrument-coverage
+        LLVM_PROFILE_FILE: coverage-%p-%m.profraw
 
   build-and-release:
     needs: test
