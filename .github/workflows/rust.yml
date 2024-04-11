@@ -80,7 +80,7 @@ jobs:
       run: cargo check
 
   test:
-    name: Run Tests and Coverage
+    name: Run Tests
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -104,9 +104,6 @@ jobs:
       with:
         toolchain: stable
         components: llvm-tools-preview
-        
-    - name: Install grcov
-      run: cargo install grcov
 
     - name: Build
       run: cargo build
@@ -120,23 +117,6 @@ jobs:
 
     - name: List coverage files
       run: find . -name "*.profraw"
-
-    - name: Create coverage directory
-      run: mkdir -p ./coverage/
-      
-    - name: Generate coverage report
-      run: |
-        grcov . -s . -t lcov --llvm --branch --ignore-not-existing -o ./coverage/
-      shell: bash
-
-    - name: Zip coverage files (Cross-platform)
-      run: |
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-          Compress-Archive -Path $(Get-ChildItem -Recurse -Include "*.profraw") -DestinationPath ccov.zip
-        else
-          zip -0 ccov.zip ./coverage/*
-        fi
-      shell: bash
 
   build-and-release:
     needs: test
